@@ -222,7 +222,7 @@ class Docker:
         args.append(container)
         result = self._run(args)
         # The docker CLI replays the container's stderr on its own stderr.
-        return result.stdout + result.stderr
+        return (result.stdout + result.stderr).replace("\r\n", "\n")
 
     def stats(self, container: str | None = None) -> list[dict[str, Any]]:
         args = ["stats", "--no-stream", "--format", "{{json .}}"]

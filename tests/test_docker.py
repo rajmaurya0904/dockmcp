@@ -175,3 +175,9 @@ def test_subprocess_timeout(tmp_path):
     cli = DockerCLI([sys.executable, str(script)], timeout=0.3)
     with pytest.raises(DockerError, match="timed out"):
         cli.run(["ps"])
+
+
+def test_logs_normalise_windows_line_endings():
+    backend = FakeBackend()
+    backend.logs_output = ("a\r\nb\r\n", "")
+    assert Docker(backend).logs("web") == "a\nb\n"
