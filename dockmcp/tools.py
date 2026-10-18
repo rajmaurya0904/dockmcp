@@ -7,6 +7,7 @@ text a model can read without further parsing.
 
 from __future__ import annotations
 
+import difflib
 import json
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -413,4 +414,19 @@ class ToolSet:
         except InvalidArgument as exc:
             raise ToolError(str(exc)) from exc
         except DockerError as exc:
-            raise ToolError(str(exc)) from exc
+            raise ToolError(self._with_hint(str(exc), args.get("container"))) from exc
+
+    def _with_hint(self, message: str, wanted: Any) -> str:
+        """Append close container names when the caller got a name wrong."""
+        if not isinstance(wanted, str) or "no such container" not in message.lower():
+            return message
+        try:
+            known = [r.get("Names", "") for r in self.docker.list_containers(all=True)]
+        except DockerError:
+            return message
+        close = difflib.get_close_matches(wanted, known, n=3, cutoff=0.4)
+        if close:
+            return f"{message}\nDid you mean: {', '.join(close)}?"
+        if known:
+            return f"{message}\nExisting containers: {', '.join(known)}"
+        return f"{message}\nThere are no containers on this host."
