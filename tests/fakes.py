@@ -107,5 +107,8 @@ class FakeBackend:
             }
             return CommandResult(0, jl([row]), "")
         if verb in {"start", "stop", "restart", "rm"}:
+            if args[-1] not in {"web", "db"}:
+                message = f"Error response from daemon: No such container: {args[-1]}"
+                return CommandResult(1, "", message)
             return CommandResult(0, args[-1] + "\n", "")
         return CommandResult(1, "", f"unknown command {verb}")

@@ -183,3 +183,15 @@ def test_every_tool_description_mentions_nothing_empty():
 def test_table_aligns_columns():
     out = table(["A", "BBB"], [["xx", "1"], ["y", "22"]])
     assert out.splitlines() == ["A   BBB", "xx  1", "y   22"]
+
+
+def test_unknown_container_suggests_close_names(tools):
+    with pytest.raises(ToolError) as info:
+        tools.call("start_container", {"container": "wbe"})
+    assert "Did you mean: web" in str(info.value)
+
+
+def test_unknown_container_lists_existing_when_nothing_is_close(tools):
+    with pytest.raises(ToolError) as info:
+        tools.call("inspect_container", {"container": "zzzzzz"})
+    assert "Existing containers: web, db" in str(info.value)
