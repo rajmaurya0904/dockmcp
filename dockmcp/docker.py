@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import json
 import re
-import shlex
 import shutil
 import subprocess
 from collections.abc import Sequence
@@ -60,14 +59,13 @@ class Backend(Protocol):
 class DockerCLI:
     """Runs ``docker <args>`` as a subprocess.
 
-    ``command`` is the program to run, either a bare name/path (``"docker"``) or a
-    full prefix such as ``["podman"]``. It defaults to whatever ``docker`` resolves to
-    on ``PATH``.
+    ``command`` is the program to run: a bare name or path (``"docker"``, ``"podman"``),
+    or a list whose first item is the program and the rest are leading arguments.
     """
 
     def __init__(self, command: str | Sequence[str] = "docker", timeout: float = DEFAULT_TIMEOUT):
         if isinstance(command, str):
-            command = shlex.split(command, posix=False) if " " in command.strip() else [command]
+            command = [command]
         self.command = list(command)
         if not self.command:
             raise ValueError("docker command must not be empty")
