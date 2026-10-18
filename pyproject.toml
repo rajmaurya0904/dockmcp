@@ -4,9 +4,7 @@ version = "0.1.0"
 description = "MCP server that lets Claude Code control Docker Desktop—list, start, stop containers and view logs via natural language prompts."
 requires-python = ">=3.11"
 license = { text = "MIT" }
-dependencies = [
-    "mcp>=1.0",
-]
+dependencies = []
 
 [project.optional-dependencies]
 dev = [
